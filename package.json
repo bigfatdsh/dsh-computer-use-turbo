@@ -1,0 +1,52 @@
+{
+  "name": "dsh-computer-use-turbo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Computer Use 模式加速插件：把步数与每步思考压下来，并去掉重复截图与重复结果。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "computer-use",
+    "gui-agent",
+    "latency",
+    "token"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./policy": "./lib/policy.js",
+    "./content": "./lib/content.js",
+    "./package.json": "./package.json",
+    "./locale/*.json": "./locale/*.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/policy.js",
+    "lib/content.js",
+    "lib/index.test.js",
+    "lib/__fixtures__",
+    "locale",
+    "cordis.patch.yml",
+    "README.md",
+    "DISTRIBUTION.md",
+    "WINDOWS.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test lib/index.test.js",
+    "pack": "pnpm pack"
+  },
+  "meta": {
+    "title": "Computer Use 加速 Computer Use Turbo",
+    "description": "GUI 会话提速与省 token：可数的交棒预算砍掉整条弯路，批处理中间帧与逐字节重复截图不再入账。"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

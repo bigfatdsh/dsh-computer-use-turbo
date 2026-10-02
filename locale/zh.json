@@ -1,0 +1,19 @@
+{
+  "name": "Computer Use 加速",
+  "description": "GUI 会话提速与省 token：可数的交棒预算砍掉整条弯路，批处理中间帧与逐字节重复截图不再入账。",
+  "config": {
+    "enabled": "总开关。关闭后插件不注册任何监听器。",
+    "presets": "启用的预设 id 列表；留空表示对所有会话生效。",
+    "policy": "把官方 computer-use 策略换成压缩版（坐标段逐字保留）。",
+    "discipline": "在策略后追加作业纪律（不复述、不重复看图、达成即停）。",
+    "dedupeImages": "逐字节相同的截图用一行等价说明替代。",
+    "strictImageDedupe": "图片去重要求 SHA-256 逐字节比较；读不到字节时放弃去重而不是猜。",
+    "dedupeText": "逐字相同的非观察文本结果用等价说明替代。",
+    "textDedupeMinChars": "触发文本去重的最小码点数。",
+    "textCapHeadChars": "文本留头码点数；与 textCapTailChars 之和为 0 表示不启用（有损，默认关闭）。",
+    "textCapTailChars": "文本留尾码点数。",
+    "imageRetentionWindow": "只保留最近 N 张截图，更早的换成占位说明；0 表示保留全部。",
+    "logSavings": "把省量写入 Host 日志。",
+    "verboseMetrics": "日志里附上分项统计。"
+  }
+}

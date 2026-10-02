@@ -1,0 +1,50 @@
+# Computer Use 加速（dsh-computer-use-turbo）bundle 补丁。
+#
+# 只插入**一行**：策略插件本身。
+#
+# 为什么不动 `preset-computer-use` 那一行：
+#   * 预设的行 id 属于 dsh-orb；在用户补丁层重复声明它会连带复制整份预设配置，
+#     上游一升级就静默漂移。
+#   * 本插件按 `agentPreset` 自判会话，因此插在 profile 根部即可作用于
+#     computer-use 会话，其它预设（standard / minimal / …）完全不受影响。
+#
+# 与「生存模式」的关系：两者互不冲突也互不依赖。
+#   * 生存模式挂在 `tools/post-execute` 做结果逐字去重、并调整 persona 与裁剪阈值；
+#   * 本插件改写 computer-use 策略段、按步做截图取舍。
+#   两者都以 `prepend: true` 挂在同一个 waterfall 外层，各自只在自己的范围内
+#   改写内容，重叠部分（逐字相同的纯文本结果）最多被压缩两次，结果等价。
+
+- insert:
+    - id: computer-use-turbo
+      name: 'dsh-computer-use-turbo'
+      config:
+        # 只对 computer-use 预设生效。留空数组 = 对所有会话生效。
+        presets:
+          - computer-use
+        # 把官方策略换成压缩版，并补一条可数的交棒预算（bash 用满 3 次即交棒）。
+        policy: true
+        discipline: true
+        # 逐字节相同的截图 / 文本结果用一行等价说明替代。数学上无损。
+        dedupeImages: true
+        dedupeText: true
+        textDedupeMinChars: 512
+        # 图片去重要求 SHA-256 逐字节比较；附件服务不可用时放弃去重而不是猜。
+        strictImageDedupe: true
+        # 文本截断默认关闭：它是**有损**的，需要时自己打开并给预算。
+        textCapHeadChars: 0
+        textCapTailChars: 0
+        # 观察窗口默认关闭：删除历史中段会让后续请求的 KV 缓存从删除点起失效，
+        # 通常得不偿失。需要长会话压上下文时再打开。
+        imageRetentionWindow: 0
+        # 把 reasoningEffort 钉在会话内首次请求的取值上。
+        #
+        # 这是本插件对缓存命中率影响最大的一项，实测命中率 94.18% -> 96.11%。
+        # 原因：dsh-orb 的 code_agent 启动时会临时改写全局默认模型再还原
+        # （selectModelKeepDefault），窗口期内计算机会话会读到那个临时值；
+        # 一旦 reasoningEffort 与上一步不同，请求头就变了，DeepSeek 端整段前缀
+        # 缓存作废。实测两次这样的变更烧掉 163,458 个按未命中价计费的 token。
+        #
+        # 只在 provider + model 不变时才回钉，换模型是用户的明确动作，不拦。
+        # 如果你故意要在会话中途改 reasoning effort，把它设为 false。
+        pinReasoningEffort: true
+        logSavings: true

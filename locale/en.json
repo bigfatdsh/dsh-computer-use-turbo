@@ -1,0 +1,19 @@
+{
+  "name": "Computer Use Turbo",
+  "description": "Faster, cheaper GUI sessions: a countable handoff budget removes the whole detour, and redundant or byte-identical screenshots stop being billed.",
+  "config": {
+    "enabled": "Master switch. When off, no listener is registered.",
+    "presets": "Agent preset ids this applies to; empty means every session.",
+    "policy": "Replace the shipped computer-use policy with a compressed one (the coordinate clause is kept verbatim).",
+    "discipline": "Append a short working discipline (no narration, no re-reading an image, stop when done).",
+    "dedupeImages": "Replace a byte-identical screenshot with a one-line equivalent notice.",
+    "strictImageDedupe": "Require a SHA-256 byte comparison; when bytes are unavailable, skip dedupe instead of guessing.",
+    "dedupeText": "Replace a verbatim-identical non-observation text result with an equivalent notice.",
+    "textDedupeMinChars": "Minimum code points before text dedupe applies.",
+    "textCapHeadChars": "Head budget in code points; 0 with the tail at 0 disables capping (lossy, off by default).",
+    "textCapTailChars": "Tail budget in code points.",
+    "imageRetentionWindow": "Keep only the newest N screenshots and replace older ones with a notice; 0 keeps every one.",
+    "logSavings": "Write the savings report to the Host log.",
+    "verboseMetrics": "Include the per-metric breakdown in the log."
+  }
+}

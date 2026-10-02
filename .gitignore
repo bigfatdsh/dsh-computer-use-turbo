@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+
+# 编辑器 / IDE
+.vscode/
+.idea/
+*.swp
+
+# 依赖与构建产物（本插件是纯 JS，无构建步骤）
+node_modules/
+dist/
+*.tgz
+
+# 日志与临时文件
+*.log
+npm-debug.log*
+pnpm-debug.log*
