@@ -337,25 +337,41 @@ frame(s) and K identical text result(s), ~T tokens saved.
 
 ## 7. 验证与复现
 
-仓库里的 `.probe/` 保存了全部取证脚本（不随包发布）：
+**这个仓库里能跑的验证只有一条，但它足够**：
+
+```bash
+node --test lib/index.test.js     # 105 项
+```
+
+它是**自包含**的——所有结论所依赖的真实数据都内嵌在 `lib/__fixtures__/`：
+
+| 夹具 | 内容 | 支撑哪些结论 |
+|---|---|---|
+| `policy.js` | 真实 computer-use POLICY（millifraction 口径）逐字副本 | 策略压缩率、坐标段逐字保留 |
+| `policy-pixel.js` | 同一份策略的 pixel 口径变体 | 本机历史会话全是这个形态，两种口径都要测 |
+| `usage.js` | 6 个会话、165 步的 provider 实测用量 | 命中率 94.18% → 96.11%、省 145,138 未命中 token |
+| `click-accuracy.js` | 四组 `preview → real` 换算、缩略图与栅格尺寸 | 点击失准的量化：20px × 1.5901 = 31.8px > 24px 容差 |
+
+所以**不需要**我的会话日志也能复核每一条数字。
+
+### 本机的取证管道（不随仓库发布）
+
+上面那些原始数据是用一套一次性脚本从会话日志里挖出来的，它们**不在这个仓库里**，
+因为依赖本机的目录结构：
 
 | 脚本 | 用途 |
 |---|---|
-| `.probe/unzstd.mjs` | 把 append-only 的多帧 zstd 会话日志逐帧解压 |
-| `.probe/surface.mjs` | 从会话日志重建每次请求的面：工具表、系统提示、逐步 reasoning 与墙钟 |
-| `.probe/narrate.mjs` | 打印最长的几段 reasoning，用于定位“模型在纠结什么” |
-| `.probe/analyze.mjs` | 按块类型统计会话面 |
-| `.probe/prefix.mjs` | 重建每一步发出的前缀规模，定位缓存断点 |
+| `unzstd.mjs` | 把 append-only 的多帧 zstd 会话日志逐帧解压 |
+| `surface.mjs` | 从会话日志重建每次请求的面：工具表、系统提示、逐步 reasoning 与墙钟 |
+| `narrate.mjs` | 打印最长的几段 reasoning，用于定位「模型在纠结什么」 |
+| `analyze.mjs` | 按块类型统计会话面 |
+| `prefix.mjs` | 重建每一步发出的前缀规模，定位缓存断点 |
 
-复现步骤：
-
-```bash
-NODE="/Applications/DeepSeek Harness.app/Contents/Resources/runtime/primary-runtime/dependencies/node/bin/node"
-for d in ~/.dsh/sessions/--Users-yangletian-.dsh-dsh_orb--/session-*; do
-  "$NODE" .probe/unzstd.mjs "$d/session.v4.jsonl.zstd" ".probe/sessions/$(basename $d).jsonl"
-done
-"$NODE" .probe/surface.mjs .probe/sessions
-```
+想在自己的机器上重跑，思路是：会话日志在
+`~/.dsh/sessions/--<工作目录 slug>--/session-*/session.v4.jsonl.zstd`，是**多帧 zstd**
+（每帧以 `28 b5 2f fd` 开头），用 Node 24 的 `zlib.zstdDecompressSync` 逐帧解压即可；
+解出来的 JSONL 里 `assistant/message` 事件带 `usage`（`cacheReadTokens` /
+`inputTokens`），这就是全部命中率数字的来源。
 
 ## 8. 安装与分发
 

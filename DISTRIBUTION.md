@@ -61,7 +61,7 @@ locale/en.json  locale/zh.json
 ## 方式 B：本地目录（开发自己用）
 
 ```bash
-git clone <仓库地址> dsh-computer-use-turbo
+git clone https://github.com/bigfatdsh/dsh-computer-use-turbo.git
 ```
 
 然后让 agent 用 `install_bundle` 指向该目录的**绝对路径**：
@@ -72,14 +72,25 @@ pnpm 会用软链接安装，**改源码立刻生效**，不用重装。代价�
 
 ---
 
-## 方式 C：从 git 仓库安装
+## 方式 C：从 GitHub 安装（推荐，只要对方能联网）
+
+仓库：**<https://github.com/bigfatdsh/dsh-computer-use-turbo>**
+
+对方只需对 agent 说：
+
+> 从 `https://github.com/bigfatdsh/dsh-computer-use-turbo` 安装插件
+
+`install_bundle` 的 target 直接交给 pnpm，所以 git URL 与 tarball 走同一条取包路径。
+装完不用选预设——本插件对 Computer Use 会话自动生效。
+
+## 方式 D：从 git 仓库安装（任意来源）
 
 `install_bundle` 的 `target` 直接交给 pnpm，因此支持 pnpm 认识的所有形式：
 
 | target 形式 | 说明 |
 |---|---|
 | `http(s)://.../x.tgz` | 远端 tarball |
-| `https://github.com/用户/仓库` | git 仓库 |
+| `https://github.com/bigfatdsh/dsh-computer-use-turbo` | 本仓库（pnpm 直接吃 git URL） |
 | 本地目录绝对路径 | 软链接，改代码即时生效 |
 | `file:...tgz` | 本地 tarball |
 
