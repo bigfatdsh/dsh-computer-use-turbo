@@ -36,6 +36,35 @@
         # 观察窗口默认关闭：删除历史中段会让后续请求的 KV 缓存从删除点起失效，
         # 通常得不偿失。需要长会话压上下文时再打开。
         imageRetentionWindow: 0
+        # 要从 Computer Use 工具表里摘掉的工具名（精确匹配）。
+        #
+        # 为什么需要：预设只声明 21 个工具，但同进程里别的插件往全局注册表加的
+        # 工具会自动出现在每个预设的工具表里。实测本机装了 univer 之后，Computer
+        # Use 工具表从 21 个涨到 35 个，多出的 14 个 univer_* 占 11,511 字符
+        # （约 2,878 token）= 整张表的 41%，而它们对「操作界面」没有用处。
+        #
+        # 默认留空。要摘就取消下面的注释——但先读 README「摘工具的账」：
+        # 省的是每轮约 2,878 token 的**读入**，而工具表变化会让本会话的 KV 缓存
+        # 前缀一次性失效（约 5,336 token 按未命中价重算）。净金额很小，
+        # 真正的收益是「模型不会去调无关工具」从而少走一步。
+        denyTools: []
+        # denyTools:
+        #   - univer_api
+        #   - univer_compile_svg
+        #   - univer_execute
+        #   - univer_export
+        #   - univer_import
+        #   - univer_inspect
+        #   - univer_lint
+        #   - univer_new
+        #   - univer_print_pdf
+        #   - univer_resources
+        #   - univer_screenshot
+        #   - univer_status
+        #   - univer_unit
+        #   - univer_worktree
+        #   - load_workspace_dependencies
+        #
         # 把 reasoningEffort 钉在会话内首次请求的取值上。
         #
         # 这是本插件对缓存命中率影响最大的一项，实测命中率 94.18% -> 96.11%。
