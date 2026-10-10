@@ -128,7 +128,7 @@ Config 里 status 显示 `absent`，都属正常（不注册 Service 的纯插�
   --test lib/index.test.js
 ```
 
-预期 **96 项全绿**。测试自包含（真实 POLICY 与用量序列都内嵌在
+预期 **112 项全绿**。测试自包含（真实 POLICY 与用量序列都内嵌在
 `lib/__fixtures__/`），所以任何机器上结果都一样，不依赖打包机的取证数据。
 
 ---
