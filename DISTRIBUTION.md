@@ -36,7 +36,7 @@ pnpm 完成安装；`@deepseek-ai/*` 依赖由 DSH 本身提供。
 
 ```bash
 cd dsh-computer-use-turbo
-node --test lib/index.test.js     # 先自检，128 项应全绿
+node --test lib/index.test.js     # 先自检，133 项应全绿
 pnpm pack                          # 产出 dsh-computer-use-turbo-1.0.0.tgz
 ```
 
