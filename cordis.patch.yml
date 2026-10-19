@@ -65,6 +65,17 @@
         #   - univer_worktree
         #   - load_workspace_dependencies
         #
+        # 摘掉对「操作桌面」没有用处的系统提示段。
+        #
+        # 实测（2026-10-19 一个 41 步会话的真实系统提示 28 段、3,176 token）：
+        # 其中四段与桌面操作无关，合计 730 token（23%）——
+        #   · 呈现规范 326 tok（Markdown 图片/链接、present 卡片）
+        #   - Web GUI 251 tok（dev:web、Vite 重建、__DSH_BOOT__、本 GUI 的 URL）
+        #   - Harness 检出 82 tok（改 DSH 本身才用）
+        #   - write 工具 71 tok（本预设没有 write 工具）
+        # 这些段由 Web 应用 bundle 注入到每个预设，球面板里也会带上；摘掉不改变
+        # 任何 GUI 操作能力。设 false 可保留全部。
+        trimPrompt: true
         # 把 reasoningEffort 钉在会话内首次请求的取值上。
         #
         # 这是本插件对缓存命中率影响最大的一项，实测命中率 94.18% -> 96.11%。
