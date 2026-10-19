@@ -1,0 +1,90 @@
+# Computer Use 加速（dsh-computer-use-turbo）bundle 补丁。
+#
+# 只插入**一行**：策略插件本身。
+#
+# 为什么不动 `preset-computer-use` 那一行：
+#   * 预设的行 id 属于 dsh-orb；在用户补丁层重复声明它会连带复制整份预设配置，
+#     上游一升级就静默漂移。
+#   * 本插件按 `agentPreset` 自判会话，因此插在 profile 根部即可作用于
+#     computer-use 会话，其它预设（standard / minimal / …）完全不受影响。
+#
+# 与「生存模式」的关系：两者互不冲突也互不依赖。
+#   * 生存模式挂在 `tools/post-execute` 做结果逐字去重、并调整 persona 与裁剪阈值；
+#   * 本插件改写 computer-use 策略段、按步做截图取舍。
+#   两者都以 `prepend: true` 挂在同一个 waterfall 外层，各自只在自己的范围内
+#   改写内容，重叠部分（逐字相同的纯文本结果）最多被压缩两次，结果等价。
+
+- insert:
+    - id: computer-use-turbo
+      name: 'dsh-computer-use-turbo'
+      config:
+        # 只对 computer-use 预设生效。留空数组 = 对所有会话生效。
+        presets:
+          - computer-use
+        # 把官方策略换成压缩版，并补一条可数的交棒预算（bash 用满 3 次即交棒）。
+        policy: true
+        discipline: true
+        # 逐字节相同的截图 / 文本结果用一行等价说明替代。数学上无损。
+        dedupeImages: true
+        dedupeText: true
+        textDedupeMinChars: 512
+        # 图片去重要求 SHA-256 逐字节比较；附件服务不可用时放弃去重而不是猜。
+        strictImageDedupe: true
+        # 文本截断默认关闭：它是**有损**的，需要时自己打开并给预算。
+        textCapHeadChars: 0
+        textCapTailChars: 0
+        # 观察窗口默认关闭：删除历史中段会让后续请求的 KV 缓存从删除点起失效，
+        # 通常得不偿失。需要长会话压上下文时再打开。
+        imageRetentionWindow: 0
+        # 要从 Computer Use 工具表里摘掉的工具名（精确匹配）。
+        #
+        # 为什么需要：预设只声明 21 个工具，但同进程里别的插件往全局注册表加的
+        # 工具会自动出现在每个预设的工具表里。实测本机装了 univer 之后，Computer
+        # Use 工具表从 21 个涨到 35 个，多出的 14 个 univer_* 占 11,511 字符
+        # （约 2,878 token）= 整张表的 41%，而它们对「操作界面」没有用处。
+        #
+        # 默认留空。要摘就取消下面的注释——但先读 README「摘工具的账」：
+        # 省的是每轮约 2,878 token 的**读入**，而工具表变化会让本会话的 KV 缓存
+        # 前缀一次性失效（约 5,336 token 按未命中价重算）。净金额很小，
+        # 真正的收益是「模型不会去调无关工具」从而少走一步。
+        denyTools: []
+        # denyTools:
+        #   - univer_api
+        #   - univer_compile_svg
+        #   - univer_execute
+        #   - univer_export
+        #   - univer_import
+        #   - univer_inspect
+        #   - univer_lint
+        #   - univer_new
+        #   - univer_print_pdf
+        #   - univer_resources
+        #   - univer_screenshot
+        #   - univer_status
+        #   - univer_unit
+        #   - univer_worktree
+        #   - load_workspace_dependencies
+        #
+        # 摘掉对「操作桌面」没有用处的系统提示段。
+        #
+        # 实测（2026-10-19 一个 41 步会话的真实系统提示 28 段、3,176 token）：
+        # 其中四段与桌面操作无关，合计 730 token（23%）——
+        #   · 呈现规范 326 tok（Markdown 图片/链接、present 卡片）
+        #   - Web GUI 251 tok（dev:web、Vite 重建、__DSH_BOOT__、本 GUI 的 URL）
+        #   - Harness 检出 82 tok（改 DSH 本身才用）
+        #   - write 工具 71 tok（本预设没有 write 工具）
+        # 这些段由 Web 应用 bundle 注入到每个预设，球面板里也会带上；摘掉不改变
+        # 任何 GUI 操作能力。设 false 可保留全部。
+        trimPrompt: true
+        # 把 reasoningEffort 钉在会话内首次请求的取值上。
+        #
+        # 这是本插件对缓存命中率影响最大的一项，实测命中率 94.18% -> 96.11%。
+        # 原因：dsh-orb 的 code_agent 启动时会临时改写全局默认模型再还原
+        # （selectModelKeepDefault），窗口期内计算机会话会读到那个临时值；
+        # 一旦 reasoningEffort 与上一步不同，请求头就变了，DeepSeek 端整段前缀
+        # 缓存作废。实测两次这样的变更烧掉 163,458 个按未命中价计费的 token。
+        #
+        # 只在 provider + model 不变时才回钉，换模型是用户的明确动作，不拦。
+        # 如果你故意要在会话中途改 reasoning effort，把它设为 false。
+        pinReasoningEffort: true
+        logSavings: true
